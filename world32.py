@@ -17,6 +17,7 @@ def simulate_scenario(population_growth_rate, pollution_generation_rate, polluti
     resources = 1.0   # Fraction of resources remaining
     resource_usage_rate = 0.02
     xcc_price = 80 if enable_gcr else 0
+                         XCC_growth_rate = 0.1
     mitigation_rate = 0.0
     removal_rate = 0.0
     time_steps = 100
@@ -43,6 +44,7 @@ def simulate_scenario(population_growth_rate, pollution_generation_rate, polluti
 
         # GCR calculations
         if enable_gcr:
+            xcc_price *= (1 + growth_rate * dt)
             mitigation_rate = min((xcc_price * co2e) / industrial_output, 0.15)
             removal_rate = removal_efficiency * xcc_price / 1000
         else:
