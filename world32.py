@@ -7,7 +7,7 @@ def calculate_carbon_reward(pollution_reduction, xcc_price):
     return pollution_reduction * xcc_price
 
 def simulate_scenario(population_growth_rate, pollution_generation_rate, pollution_decay_rate,
-                      resource_depletion_effect, enable_gcr, co2e_frac=0.65, removal_efficiency=0.15):
+                      resource_depletion_effect, enable_gcr, co2e_frac=0.65, removal_efficiency=0.15, technology_factor=1.0):
     # Initial conditions
     population = 8.5  # Billion people
     industrial_output = 0.5
@@ -20,6 +20,7 @@ def simulate_scenario(population_growth_rate, pollution_generation_rate, polluti
     growth_rate = 0.1  # 10% per year
     co2e_rate_factor = 1.0  # Initial CO2e rate factor
     co2e_increase_rate = 0.05  # 5% increase per year due to XCC adoption
+    resource_availability_multiplier = 1.0  # Initial resource availability multiplier
 
     # History tracking with correct variable names
     histories = {
@@ -69,8 +70,11 @@ def simulate_scenario(population_growth_rate, pollution_generation_rate, polluti
         # Resource depletion
         resources -= resource_usage_rate * industrial_output * dt
         
+        # Update resource availability multiplier
+        resource_availability_multiplier = (resources / (1 + resource_depletion_effect * (1 - resources))) * technology_factor
+        
         # Population dynamics
-        carrying_capacity = 10.0
+        carrying_capacity = 10.0 * resource_availability_multiplier
         pollution_impact = max(0, 1 - (co2e + other_pollution))
         population *= (1 + population_growth_rate * pollution_impact * 
                       (1 - population / carrying_capacity) * dt)
