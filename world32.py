@@ -10,8 +10,8 @@ def simulate_scenario(population_growth_rate, pollution_generation_rate, polluti
                       resource_depletion_effect, enable_gcr, co2e_frac=0.65, removal_efficiency=0.15, technology_factor=1.0):
     # Initial conditions
     population = 8.5  # Billion people
-    time_steps=100
-    dt=1
+    time_steps = 100  # Total number of time steps
+    dt = 1  # Time increment (e.g., 1 year)
     industrial_output = 0.5
     industrial_output_growth_rate = 0.03
     co2e = 0.417      # Atmospheric CO2e concentration (ppm)
@@ -45,7 +45,7 @@ def simulate_scenario(population_growth_rate, pollution_generation_rate, polluti
 
         # GCR calculations
         if enable_gcr:
-            xcc_price *= (1 + growth_rate * dt)
+            xcc_price *= (1 + xcc_growth_rate * dt)
             co2e_rate_factor *= (1 + co2e_increase_rate * dt)
             mitigation_rate = min((xcc_price * co2e) / industrial_output, 0.15)
             removal_rate = removal_efficiency * xcc_price / 1000
