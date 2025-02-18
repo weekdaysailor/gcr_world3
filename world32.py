@@ -74,6 +74,15 @@ def simulate_scenario(population_growth_rate, pollution_generation_rate, polluti
         population *= (1 + population_growth_rate * pollution_impact * 
                       (1 - population / carrying_capacity) * dt)
         
+        # Debugging statements
+        print(f"Time step {t}:")
+        print(f"  Population: {population}")
+        print(f"  Carrying Capacity: {carrying_capacity}")
+        print(f"  Pollution Impact: {pollution_impact}")
+        print(f"  Industrial Output: {industrial_output}")
+        print(f"  CO2e: {co2e}")
+        print(f"  Resources: {resources}")
+
         # Ensure non-negative values
         population = max(0, population)
         industrial_output = max(0, industrial_output)
@@ -89,7 +98,6 @@ def simulate_scenario(population_growth_rate, pollution_generation_rate, polluti
         histories['resources'].append(resources)
 
     return histories
-
 # Monte Carlo simulation setup
 num_simulations = 100
 scenarios = ['with_gcr', 'without_gcr']
