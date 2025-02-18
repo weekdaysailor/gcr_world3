@@ -10,6 +10,8 @@ def simulate_scenario(population_growth_rate, pollution_generation_rate, polluti
                       resource_depletion_effect, enable_gcr, co2e_frac=0.65, removal_efficiency=0.15, technology_factor=1.0):
     # Initial conditions
     population = 8.5  # Billion people
+    time_steps=100
+    dt=1
     industrial_output = 0.5
     industrial_output_growth_rate = 0.03
     co2e = 0.417      # Atmospheric CO2e concentration (ppm)
@@ -17,7 +19,7 @@ def simulate_scenario(population_growth_rate, pollution_generation_rate, polluti
     resources = 1.0   # Fraction of resources remaining
     resource_usage_rate = 0.02
     xcc_price = 80 if enable_gcr else 0
-    growth_rate = 0.1  # 10% per year
+    xcc_growth_rate = 0.1  # 10% per year
     co2e_rate_factor = 1.0  # Initial CO2e rate factor
     co2e_increase_rate = 0.05  # 5% increase per year due to XCC adoption
     resource_availability_multiplier = 1.0  # Initial resource availability multiplier
