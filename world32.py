@@ -10,8 +10,6 @@ def simulate_scenario(population_growth_rate, pollution_generation_rate, polluti
                       resource_depletion_effect, enable_gcr, co2e_frac=0.65, removal_efficiency=0.15, technology_factor=1.0):
     # Initial conditions
     population = 8.5  # Billion people
-    time_steps = 100  # Total number of time steps
-    dt = 1  # Time increment (e.g., 1 year)
     industrial_output = 0.5
     industrial_output_growth_rate = 0.03
     co2e = 0.417      # Atmospheric CO2e concentration (ppm)
@@ -19,26 +17,37 @@ def simulate_scenario(population_growth_rate, pollution_generation_rate, polluti
     resources = 1.0   # Fraction of resources remaining
     resource_usage_rate = 0.02
     xcc_price = 80 if enable_gcr else 0
-    xcc_growth_rate = 0.1  # 10% per year
+    growth_rate = 0.1  # 10% per year
     co2e_rate_factor = 1.0  # Initial CO2e rate factor
     co2e_increase_rate = 0.05  # 5% increase per year due to XCC adoption
     resource_availability_multiplier = 1.0  # Initial resource availability multiplier
+    mitigation_rate = 0.0
+    removal_rate = 0.0
+    time_steps = 100
+    dt = 1
 
     # History tracking with correct variable names
     histories = {
-        'population': [population],
-        'industrial_output': [industrial_output],
-        'co2e': [co2e],
-        'other_pollution': [other_pollution],
-        'resources': [resources]
+        'population': [],
+        'industrial_output': [],
+        'co2e': [],
+        'other_pollution': [],
+        'resources': []
     }
 
     for t in range(time_steps):
         resource_limit = max(0, resources) / (1 + resource_depletion_effect * (1 - resources))
         
+        # Store current state
+        histories['population'].append(population)
+        histories['industrial_output'].append(industrial_output)
+        histories['co2e'].append(co2e)
+        histories['other_pollution'].append(other_pollution)
+        histories['resources'].append(resources)
+
         # GCR calculations
         if enable_gcr:
-            xcc_price *= (1 + xcc_growth_rate * dt)
+            xcc_price *= (1 + growth_rate * dt)
             co2e_rate_factor *= (1 + co2e_increase_rate * dt)
             mitigation_rate = min((xcc_price * co2e) / industrial_output, 0.15)
             removal_rate = removal_efficiency * xcc_price / 1000
@@ -69,20 +78,15 @@ def simulate_scenario(population_growth_rate, pollution_generation_rate, polluti
         resource_availability_multiplier = (resources / (1 + resource_depletion_effect * (1 - resources))) * technology_factor
         
         # Population dynamics
-        carrying_capacity = 10.0 * resource_availability_multiplier
+        carrying_capacity = min(1,10.0 * resource_availability_multiplier)
         pollution_impact = max(0, 1 - (co2e + other_pollution))
-        population *= (1 + population_growth_rate * pollution_impact * 
-                      (1 - population / carrying_capacity) * dt)
+        population *= min((1 + population_growth_rate * pollution_impact * 
+                           (1 - population / carrying_capacity) * dt),carrying_capacity)
+        print(f"Population",{population})
+        print(f"pollution_impact",{pollution_impact})
+        print(f"Carrying Capacity",{carrying_capacity})
         
-        # Debugging statements
-        print(f"Time step {t}:")
-        print(f"  Population: {population}")
-        print(f"  Carrying Capacity: {carrying_capacity}")
-        print(f"  Pollution Impact: {pollution_impact}")
-        print(f"  Industrial Output: {industrial_output}")
-        print(f"  CO2e: {co2e}")
-        print(f"  Resources: {resources}")
-
+        
         # Ensure non-negative values
         population = max(0, population)
         industrial_output = max(0, industrial_output)
@@ -90,14 +94,8 @@ def simulate_scenario(population_growth_rate, pollution_generation_rate, polluti
         other_pollution = max(0, other_pollution)
         resources = max(0, resources)
 
-        # Store current state
-        histories['population'].append(population)
-        histories['industrial_output'].append(industrial_output)
-        histories['co2e'].append(co2e)
-        histories['other_pollution'].append(other_pollution)
-        histories['resources'].append(resources)
-
     return histories
+
 # Monte Carlo simulation setup
 num_simulations = 100
 scenarios = ['with_gcr', 'without_gcr']
