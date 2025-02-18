@@ -26,23 +26,16 @@ def simulate_scenario(population_growth_rate, pollution_generation_rate, polluti
 
     # History tracking with correct variable names
     histories = {
-        'population': [],
-        'industrial_output': [],
-        'co2e': [],
-        'other_pollution': [],
-        'resources': []
+        'population': [population],
+        'industrial_output': [industrial_output],
+        'co2e': [co2e],
+        'other_pollution': [other_pollution],
+        'resources': [resources]
     }
 
     for t in range(time_steps):
         resource_limit = max(0, resources) / (1 + resource_depletion_effect * (1 - resources))
         
-        # Store current state
-        histories['population'].append(population)
-        histories['industrial_output'].append(industrial_output)
-        histories['co2e'].append(co2e)
-        histories['other_pollution'].append(other_pollution)
-        histories['resources'].append(resources)
-
         # GCR calculations
         if enable_gcr:
             xcc_price *= (1 + xcc_growth_rate * dt)
@@ -87,6 +80,13 @@ def simulate_scenario(population_growth_rate, pollution_generation_rate, polluti
         co2e = max(0, co2e)
         other_pollution = max(0, other_pollution)
         resources = max(0, resources)
+
+        # Store current state
+        histories['population'].append(population)
+        histories['industrial_output'].append(industrial_output)
+        histories['co2e'].append(co2e)
+        histories['other_pollution'].append(other_pollution)
+        histories['resources'].append(resources)
 
     return histories
 
