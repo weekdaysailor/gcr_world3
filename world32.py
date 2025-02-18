@@ -7,7 +7,7 @@ def calculate_carbon_reward(pollution_reduction, xcc_price):
     return pollution_reduction * xcc_price
 
 def simulate_scenario(population_growth_rate, pollution_generation_rate, pollution_decay_rate,
-                     resource_depletion_effect, enable_gcr, co2e_frac=0.65, removal_efficiency=0.15):
+                      resource_depletion_effect, enable_gcr, co2e_frac=0.65, removal_efficiency=0.15):
     # Initial conditions
     population = 8.5  # Billion people
     industrial_output = 0.5
@@ -17,11 +17,9 @@ def simulate_scenario(population_growth_rate, pollution_generation_rate, polluti
     resources = 1.0   # Fraction of resources remaining
     resource_usage_rate = 0.02
     xcc_price = 80 if enable_gcr else 0
-                         XCC_growth_rate = 0.1
-    mitigation_rate = 0.0
-    removal_rate = 0.0
-    time_steps = 100
-    dt = 1
+    growth_rate = 0.1  # 10% per year
+    co2e_rate_factor = 1.0  # Initial CO2e rate factor
+    co2e_increase_rate = 0.05  # 5% increase per year due to XCC adoption
 
     # History tracking with correct variable names
     histories = {
@@ -45,6 +43,7 @@ def simulate_scenario(population_growth_rate, pollution_generation_rate, polluti
         # GCR calculations
         if enable_gcr:
             xcc_price *= (1 + growth_rate * dt)
+            co2e_rate_factor *= (1 + co2e_increase_rate * dt)
             mitigation_rate = min((xcc_price * co2e) / industrial_output, 0.15)
             removal_rate = removal_efficiency * xcc_price / 1000
         else:
@@ -54,9 +53,9 @@ def simulate_scenario(population_growth_rate, pollution_generation_rate, polluti
         # Industrial output dynamics
         industrial_output *= (1 + industrial_output_growth_rate * resource_limit * dt) * (1 - mitigation_rate)
         
-        # CO2e dynamics (GHGs)
+        # CO2e dynamics (GHGs) with rate factor
         co2e += (
-            pollution_generation_rate * industrial_output * co2e_frac * dt
+            pollution_generation_rate * industrial_output * co2e_frac * co2e_rate_factor * dt
             - pollution_decay_rate * co2e * dt
             - removal_rate * dt
         )
